@@ -18,7 +18,7 @@ jobs:
     - name: Get composer cache directory
       if: ${{ !env.ACT }}
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)"  >> $GITHUB_OUTPUT && composer config cache-files-dir
 
     - name: Cache dependencies
       if: ${{ !env.ACT }}
@@ -74,7 +74,7 @@ jobs:
     - name: Get composer cache directory
       if: ${{ !env.ACT }}
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)"  >> $GITHUB_OUTPUT
 
     - name: Cache dependencies
       if: ${{ !env.ACT }}
@@ -85,7 +85,12 @@ jobs:
         restore-keys: ${{ runner.os }}-composer-
 
     - name: run install.sh
-      run: /bin/bash install.sh
+      run: /bin/bash install.sh && pwd && set
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ matrix.php-versions }}
+        path: ${{ github.workspace }}
 
     - name: touch config.local.php
       run: touch config.local.php && php -v
